@@ -2,6 +2,8 @@ package com.example.hotfixdemo
 
 import android.Manifest
 import android.os.Bundle
+import android.os.Environment
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
@@ -12,6 +14,8 @@ import pub.devrel.easypermissions.EasyPermissions
 class MainActivity : AppCompatActivity() {
 
     companion object {
+        private val TAG: String = "MainActivity"
+
         const val RC_READ_WRITE_EXTERNAL = 100
     }
 
@@ -19,6 +23,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        Log.d(TAG, "onCreate: ${getExternalFilesDir(null)?.absolutePath}")
         if (!EasyPermissions.hasPermissions(
                 this, Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -34,17 +39,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnInvokeInstanceMethod.setOnClickListener {
-
             val hotFixBugTest = SimpleHotFixBugTest()
-
             hotFixBugTest.printInfo()
-
         }
 
         btnInvokeStaticMethod.setOnClickListener {
             SimpleHotFixBugTest.staticPrintInfo()
+        }
 
-
+        btnFix.setOnClickListener {
+            FixDexUtils.loadFixedDex(this, getExternalFilesDir(null))
         }
     }
 
