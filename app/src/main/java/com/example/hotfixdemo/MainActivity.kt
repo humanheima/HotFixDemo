@@ -1,6 +1,7 @@
 package com.example.hotfixdemo
 
 import android.Manifest
+import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -40,15 +41,17 @@ class MainActivity : AppCompatActivity() {
 
         btnInvokeInstanceMethod.setOnClickListener {
             val hotFixBugTest = SimpleHotFixBugTest()
-            hotFixBugTest.printInfo()
+            hotFixBugTest.printInfo(this)
         }
 
         btnInvokeStaticMethod.setOnClickListener {
-            SimpleHotFixBugTest.staticPrintInfo()
+            SimpleHotFixBugTest.staticPrintInfo(this)
         }
 
         btnFix.setOnClickListener {
+            // TODO: 注意，在这里加载不能立即生效
             FixDexUtils.loadFixedDex(this, getExternalFilesDir(null))
+
         }
     }
 

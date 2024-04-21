@@ -2,14 +2,12 @@ package com.example.hotfixdemo;
 
 import android.content.Context;
 import android.util.Log;
-
+import dalvik.system.DexClassLoader;
+import dalvik.system.PathClassLoader;
 import java.io.File;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.HashSet;
-
-import dalvik.system.DexClassLoader;
-import dalvik.system.PathClassLoader;
 
 /**
  * @创建者 CSDN_LQR
@@ -43,7 +41,7 @@ public class FixDexUtils {
     /**
      * 加载补丁
      *
-     * @param context       上下文
+     * @param context 上下文
      * @param patchFilesDir 补丁所在目录
      */
     public static void loadFixedDex(Context context, File patchFilesDir) {
@@ -51,9 +49,10 @@ public class FixDexUtils {
             return;
         }
         // 遍历所有的修复dex
-        File fileDir = patchFilesDir != null ? patchFilesDir : new File(context.getFilesDir(), DEX_DIR);// data/data/包名/files/odex（这个可以任意位置）
+        File fileDir = patchFilesDir;
         File[] listFiles = fileDir.listFiles();
         for (File file : listFiles) {
+            Log.i(TAG, "loadFixedDex: " + file.getName());
             if ((file.getName().endsWith(DEX_SUFFIX)
                     || file.getName().endsWith(APK_SUFFIX)
                     || file.getName().endsWith(JAR_SUFFIX)
@@ -66,7 +65,8 @@ public class FixDexUtils {
     }
 
     private static void doDexInject(Context appContext, HashSet<File> loadedDex) {
-        String optimizeDir = appContext.getFilesDir().getAbsolutePath() + File.separator + OPTIMIZE_DEX_DIR;// data/data/包名/files/optimize_dex（这个必须是自己程序下的目录）
+        // data/data/包名/files/optimize_dex（这个必须是自己程序下的目录）
+        String optimizeDir = appContext.getFilesDir().getAbsolutePath() + File.separator + OPTIMIZE_DEX_DIR;
         File fopt = new File(optimizeDir);
         if (!fopt.exists()) {
             fopt.mkdirs();
@@ -101,7 +101,8 @@ public class FixDexUtils {
     /**
      * 反射给对象中的属性重新赋值
      */
-    private static void setField(Object obj, Class<?> cl, String field, Object value) throws NoSuchFieldException, IllegalAccessException {
+    private static void setField(Object obj, Class<?> cl, String field, Object value)
+            throws NoSuchFieldException, IllegalAccessException {
         Field declaredField = cl.getDeclaredField(field);
         declaredField.setAccessible(true);
         declaredField.set(obj, value);
@@ -110,7 +111,8 @@ public class FixDexUtils {
     /**
      * 反射得到对象中的属性值
      */
-    private static Object getField(Object obj, Class<?> cl, String field) throws NoSuchFieldException, IllegalAccessException {
+    private static Object getField(Object obj, Class<?> cl, String field)
+            throws NoSuchFieldException, IllegalAccessException {
         Field localField = cl.getDeclaredField(field);
         localField.setAccessible(true);
         return localField.get(obj);
@@ -120,7 +122,8 @@ public class FixDexUtils {
     /**
      * 反射得到类加载器中的pathList对象
      */
-    private static Object getPathList(Object baseDexClassLoader) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    private static Object getPathList(Object baseDexClassLoader)
+            throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
         return getField(baseDexClassLoader, Class.forName("dalvik.system.BaseDexClassLoader"), "pathList");
     }
 
